@@ -22,5 +22,5 @@
             </intent-filter>
         </receiver>
     </application>
-
+    <uses-permission android:name="com.shoppinglist.CREATEITEM"/>
 </manifest>

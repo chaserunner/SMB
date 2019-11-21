@@ -24,5 +24,7 @@
             </intent-filter>
         </activity>
     </application>
+    <!--  Declaring the special permission -->
+    <permission android:name="com.shoppinglist.CREATEITEM"></permission>
 
 </manifest>

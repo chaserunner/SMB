@@ -144,7 +144,7 @@ class MainActivity : AppCompatActivity(),
                         Intent().also { intent ->
                             intent.setAction("android.intent.shoppinglist.itemadded")
                             intent.putExtra("itemName", item.name)
-                            sendBroadcast(intent)
+                            sendBroadcast(intent,"com.shoppinglist.CREATEITEM")
                         }
                     }
                     reloadData()
