@@ -14,7 +14,7 @@ class ItemActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_item)
 
-        val recievedItem: Item? = intent.getParcelableExtra(MainActivity.INTENT_ITEM_KEY)
+        val recievedItem: Item? = intent.getParcelableExtra(ListActivity.INTENT_ITEM_KEY)
         item = recievedItem ?: Item("",0.0, 1, false)
         title = recievedItem?.name ?: "Create item"
         titleField.setText(item.name)
@@ -44,7 +44,7 @@ class ItemActivity : AppCompatActivity() {
 
         val bundle = Bundle()
         if (item.name != "" && save) {
-            bundle.putParcelable(MainActivity.INTENT_ITEM_KEY, item)
+            bundle.putParcelable(ListActivity.INTENT_ITEM_KEY, item)
         }
         val intent = Intent()
         intent.putExtras(bundle)

@@ -6,7 +6,6 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.preference.PreferenceManager
 import kotlinx.android.synthetic.main.activity_settings.*
-import kotlinx.android.synthetic.main.item_view_holder.*
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -16,15 +15,15 @@ class SettingsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
-        darkModeCheckBox.isChecked = sharedPref.getBoolean(MainActivity.DARK_MODE, false)
+        darkModeCheckBox.isChecked = sharedPref.getBoolean(ListActivity.DARK_MODE, false)
         darkModeCheckBox.setOnCheckedChangeListener({ button, isChecked ->
-            sharedPref.edit().putBoolean(MainActivity.DARK_MODE, isChecked).commit()
+            sharedPref.edit().putBoolean(ListActivity.DARK_MODE, isChecked).commit()
             updateColor()
         })
 
-        bigfontCheckbox.isChecked = sharedPref.getBoolean(MainActivity.BIG_FONT, false)
+        bigfontCheckbox.isChecked = sharedPref.getBoolean(ListActivity.BIG_FONT, false)
         bigfontCheckbox.setOnCheckedChangeListener({ button, isChecked ->
-            sharedPref.edit().putBoolean(MainActivity.BIG_FONT, isChecked).commit()
+            sharedPref.edit().putBoolean(ListActivity.BIG_FONT, isChecked).commit()
         })
 
     }
@@ -35,7 +34,7 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     fun updateColor() {
-        if (sharedPref.getBoolean(MainActivity.DARK_MODE, false)) {
+        if (sharedPref.getBoolean(ListActivity.DARK_MODE, false)) {
             setActivityBackgroundColor(Color.GRAY)
         } else {
             setActivityBackgroundColor(Color.WHITE)

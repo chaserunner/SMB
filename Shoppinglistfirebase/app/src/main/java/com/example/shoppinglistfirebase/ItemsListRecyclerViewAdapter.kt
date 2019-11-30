@@ -47,7 +47,7 @@ class ItemsListRecyclerViewAdapter(val list: ArrayList<Item>,
                 clickListener.itemSelected(item,isChecked)
             })
 
-            if (sharedPref.getBoolean(MainActivity.BIG_FONT, false)) {
+            if (sharedPref.getBoolean(ListActivity.BIG_FONT, false)) {
                 holder.listTitle.textSize = 20.0f
             } else {
                 holder.listTitle.textSize = 14.0f
