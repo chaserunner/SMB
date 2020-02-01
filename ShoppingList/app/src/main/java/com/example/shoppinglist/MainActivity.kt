@@ -57,17 +57,7 @@ class MainActivity : AppCompatActivity(),
         if (user != null) {
             startMonitoring(user.uid)
         } else {
-            val providers = arrayListOf(
-                AuthUI.IdpConfig.EmailBuilder().build(),
-                AuthUI.IdpConfig.GoogleBuilder().build())
-
-// Create and launch sign-in intent
-            startActivityForResult(
-                AuthUI.getInstance()
-                    .createSignInIntentBuilder()
-                    .setAvailableProviders(providers)
-                    .build(),
-                RC_SIGN_IN)
+            showLoginScreen()
         }
 
         fab.setOnClickListener { view ->
@@ -131,9 +121,15 @@ class MainActivity : AppCompatActivity(),
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        openSettings()
+        if (item.itemId == R.id.action_settings) {
+            openSettings()
+        } else if  (item.itemId == R.id.action_logout) {
+           logout()
+        }
+
         return when (item.itemId) {
             R.id.action_settings -> true
+            R.id.action_logout -> true
             else -> super.onOptionsItemSelected(item)
         }
     }
@@ -141,6 +137,28 @@ class MainActivity : AppCompatActivity(),
     fun openSettings(){
         val settingsIntent = Intent(this, SettingsActivity::class.java)
         startActivity(settingsIntent)
+    }
+
+    fun logout() {
+        AuthUI.getInstance()
+            .signOut(this)
+            .addOnCompleteListener {
+                showLoginScreen()
+            }
+    }
+
+    fun showLoginScreen() {
+        val providers = arrayListOf(
+            AuthUI.IdpConfig.EmailBuilder().build(),
+            AuthUI.IdpConfig.GoogleBuilder().build())
+
+// Create and launch sign-in intent
+        startActivityForResult(
+            AuthUI.getInstance()
+                .createSignInIntentBuilder()
+                .setAvailableProviders(providers)
+                .build(),
+            RC_SIGN_IN)
     }
 
     private fun showItemDetail(item: Item? = null) {
