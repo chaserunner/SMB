@@ -1,24 +1,24 @@
 package com.example.shoppinglist
 
-import android.bluetooth.BluetoothGatt
+import android.app.Activity
 import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Color
 import android.os.Bundle
-import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.room.Room
 
 import kotlinx.android.synthetic.main.activity_main.*
 import com.example.shoppinglist.ItemsListRecyclerViewAdapter as ItemsListRecyclerViewAdapter
-import androidx.core.app.ComponentActivity.ExtraData
-import androidx.core.content.ContextCompat.getSystemService
-import android.icu.lang.UCharacter.GraphemeClusterBreak.T
 import android.preference.PreferenceManager
+import android.util.Log
+import com.google.firebase.database.*
+import com.firebase.ui.auth.AuthUI
+import com.firebase.ui.auth.IdpResponse
+import com.google.firebase.auth.FirebaseAuth
 
 
 class MainActivity : AppCompatActivity(),
@@ -26,16 +26,21 @@ class MainActivity : AppCompatActivity(),
 
     companion object {
         val INTENT_ITEM_KEY = "item"
+        val TAG = "Main activity database"
         val REQUEST_CODE =  123
         val DARK_MODE = "DARK_MODE"
         val BIG_FONT = "BIG_FONT"
+        val DATABASE_REF = "items"
+        val RC_SIGN_IN = 321
     }
 
-    lateinit var database: AppDatabase
+    lateinit var fDatabase: DatabaseReference
 
     lateinit var itemsRecyclerView: RecyclerView
 
     lateinit var sharedPref: SharedPreferences
+
+    var currentItems = mutableMapOf<String, Item>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,22 +48,63 @@ class MainActivity : AppCompatActivity(),
         setSupportActionBar(toolbar)
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
 
-        database = Room.databaseBuilder(this, AppDatabase::class.java,
-            "item-master-db").allowMainThreadQueries().build()
+
         itemsRecyclerView = findViewById(R.id.items_recyclerview)
         itemsRecyclerView.layoutManager = LinearLayoutManager(this)
-        reloadData()
+        val self = this
+        val auth = FirebaseAuth.getInstance()
+        val user = auth.currentUser
+        if (user != null) {
+            startMonitoring(user.uid)
+        } else {
+            val providers = arrayListOf(
+                AuthUI.IdpConfig.EmailBuilder().build(),
+                AuthUI.IdpConfig.GoogleBuilder().build())
+
+// Create and launch sign-in intent
+            startActivityForResult(
+                AuthUI.getInstance()
+                    .createSignInIntentBuilder()
+                    .setAvailableProviders(providers)
+                    .build(),
+                RC_SIGN_IN)
+        }
+
         fab.setOnClickListener { view ->
             showItemDetail()
         }
 
         intent.getStringExtra("itemName")?.let { itemName: String ->
-            val allItems = database.itemCategoryDao().getAll()
-            val index = allItems.indexOfFirst { it.name == itemName }
-            if (index != -1) {
-                showItemDetail(allItems[index])
-            }
+//            val allItems = database.itemCategoryDao().getAll()
+//            val index = allItems.indexOfFirst { it.name == itemName }
+//            if (index != -1) {
+//                showItemDetail(allItems[index])
+//            }
         }
+    }
+
+    fun startMonitoring(userID: String) {
+        val self = this
+        fDatabase = FirebaseDatabase.getInstance().getReference(DATABASE_REF).child(userID)
+        fDatabase.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                // This method is called once with the initial value and again
+                // whenever data at this location is updated.
+                currentItems.clear()
+                val list = mutableListOf<Item>()
+                dataSnapshot.children.mapNotNullTo(list) { it.getValue<Item>(Item::class.java) }
+                list.forEach {
+                    currentItems[it.name] = it
+                }
+                itemsRecyclerView.adapter = ItemsListRecyclerViewAdapter(list, self, sharedPref)
+                Log.d(TAG, "Value is: $list")
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                // Failed to read value
+                Log.w(TAG, "Failed to read value.", error.toException())
+            }
+        })
     }
 
     override fun onStart() {
@@ -68,18 +114,11 @@ class MainActivity : AppCompatActivity(),
         } else {
             itemsRecyclerView.setBackgroundColor(Color.WHITE)
         }
-
-        reloadData()
     }
 
     fun setActivityBackgroundColor(color: Int) {
         val view = this.window.decorView
         view.setBackgroundColor(color)
-    }
-
-    fun reloadData() {
-        val list = ArrayList(database.itemCategoryDao().getAll())
-        itemsRecyclerView.adapter = ItemsListRecyclerViewAdapter(list,this, sharedPref)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -118,13 +157,14 @@ class MainActivity : AppCompatActivity(),
     }
 
     override fun listItemLongPressed(item: Item) {
-        database.itemCategoryDao().delete(item)
-        reloadData()
+        currentItems.remove(item.name)
+        fDatabase.setValue(currentItems)
     }
 
     override fun itemSelected(item: Item, selected: Boolean) {
         item.isBought = selected
-        database.itemCategoryDao().update(item)
+        currentItems[item.name] = item
+        fDatabase.setValue(currentItems)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data:
@@ -137,18 +177,26 @@ class MainActivity : AppCompatActivity(),
 
                 val item: Item? = data.getParcelableExtra(INTENT_ITEM_KEY)
                 item?.let {
-                    if (database.itemCategoryDao().getAll().indexOfFirst { it.name == item.name } != -1) {
-                        database.itemCategoryDao().update(item)
-                    } else {
-                        database.itemCategoryDao().insertAll(item)
-                        Intent().also { intent ->
-                            intent.setAction("android.intent.shoppinglist.itemadded")
-                            intent.putExtra("itemName", item.name)
-                            sendBroadcast(intent,"com.shoppinglist.CREATEITEM")
-                        }
-                    }
-                    reloadData()
+                    currentItems[item.name] = item
+                    fDatabase.setValue(currentItems)
                 }
+            }
+        }
+
+        if (requestCode == RC_SIGN_IN) {
+            val response = IdpResponse.fromResultIntent(data)
+
+            if (resultCode == Activity.RESULT_OK) {
+                // Successfully signed in
+                val user = FirebaseAuth.getInstance().currentUser
+                startMonitoring(user?.uid ?: "")
+                Log.d("asdasd", "Successful login")
+                // ...
+            } else {
+                // Sign in failed. If response is null the user canceled the
+                // sign-in flow using the back button. Otherwise check
+                // response.getError().getErrorCode() and handle the error.
+                // ...
             }
         }
     }

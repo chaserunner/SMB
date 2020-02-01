@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.item_view_holder.view.*
 
 
-class ItemsListRecyclerViewAdapter(val list: ArrayList<Item>,
+class ItemsListRecyclerViewAdapter(val list: List<Item>,
                                    val clickListener: ListSelectionRecyclerViewClickListener,
                                    val sharedPref: SharedPreferences)
     : RecyclerView.Adapter<ItemViewHolder>() {
