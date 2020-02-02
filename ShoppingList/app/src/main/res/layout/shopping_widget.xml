@@ -1,0 +1,102 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#CEFD94"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="8dp"
+        android:text="Shopping List"
+        android:textAlignment="center"
+        android:textSize="14sp" />
+
+    <ImageView
+        android:id="@+id/imageViewForPhoto"
+        android:layout_width="match_parent"
+        android:layout_height="154dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/app_widget_actionButton"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="#2D2F35"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:text="@string/prevImage"
+            android:textColor="#ECEAEA"
+            android:textSize="11sp" />
+
+        <Button
+            android:id="@+id/app_widget_actionButtonNext"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="#2D2F35"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:text="->"
+            android:textColor="#ECEAEA"
+            android:textSize="11sp" />
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/button2"
+        style="@style/FirebaseUI.Button.AccountChooser.GitHubButton"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="@string/fui_idp_name_github" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="62dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/previous"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="#2D2F35"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:text="PREVIOUS"
+            android:textColor="#ECEAEA"
+            android:textSize="11sp" />
+
+        <Button
+            android:id="@+id/play"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="#2D2F35"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:text="PLAY"
+            android:textColor="#ECEAEA"
+            android:textSize="11sp" />
+
+        <Button
+            android:id="@+id/next"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="#2D2F35"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:text="FORWARD"
+            android:textColor="#ECEAEA"
+            android:textSize="11sp" />
+    </LinearLayout>
+
+
+</LinearLayout>

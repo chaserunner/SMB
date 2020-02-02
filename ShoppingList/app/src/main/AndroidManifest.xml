@@ -9,9 +9,7 @@
     -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
-
-    <!-- Declaring the special permission -->
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" /> <!-- Declaring the special permission -->
     <permission android:name="com.shoppinglist.CREATEITEM" />
 
     <application
@@ -21,6 +19,15 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <receiver android:name=".ShoppingWidget">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/shopping_widget_info" />
+        </receiver>
 
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
@@ -36,10 +43,10 @@
 
         <activity
             android:name=".StoreMap"
-            android:label="Store Map"></activity>
+            android:label="Store Map" />
         <activity
             android:name=".StoreList"
-            android:label="Store List"></activity>
+            android:label="Store List" />
         <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings" />
@@ -54,14 +61,30 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <receiver
             android:name=".GeofenceBroadcastReceiver"
             android:enabled="true"
             android:exported="true" />
+
         <service
-            android:name=".GeofenceTransitionsJobIntentService"
+        android:name=".GeofenceTransitionsJobIntentService"
+        android:exported="true"
+        android:permission="android.permission.BIND_JOB_SERVICE" />
+        <service
+            android:name=".MediaPlayerService"
             android:exported="true"
-            android:permission="android.permission.BIND_JOB_SERVICE" />
+            android:permission="android.permission.SERVICE" />
+        <receiver android:name=".ShoppingWidget">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/shopping_widget_info" />
+        </receiver>
     </application>
 
 </manifest>
