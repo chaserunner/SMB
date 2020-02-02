@@ -1,5 +1,6 @@
 package com.example.shoppinglist
 
+import android.Manifest
 import android.app.PendingIntent
 import android.content.Intent
 import android.content.SharedPreferences
@@ -24,6 +25,7 @@ class StoreList : AppCompatActivity(),
 
     companion object {
         val STORE_REFERENCE = "stores"
+        val REQUEST_LOCATION = 7436
     }
 
     lateinit var geofencingClient: GeofencingClient
@@ -46,18 +48,18 @@ class StoreList : AppCompatActivity(),
         storesRecyclerView.layoutManager = LinearLayoutManager(this)
         geofencingClient = LocationServices.getGeofencingClient(this)
 
-        // Required if your app targets Android 10 or higher.
         if (ContextCompat.checkSelfPermission(this,
-                "android.permission.ACCESS_BACKGROUND_LOCATION")
+                Manifest.permission.ACCESS_FINE_LOCATION)
             != PackageManager.PERMISSION_GRANTED) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                "android.permission.ACCESS_BACKGROUND_LOCATION")) {
-
+           // if (permissionRationaleAlreadyShown) {
                 ActivityCompat.requestPermissions(this,
-                    arrayOf("android.permission.ACCESS_BACKGROUND_LOCATION"),
-                    1234)
-            }
-
+                    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
+                    REQUEST_LOCATION)
+//            } else {
+////                // Show an explanation to the user as to why your app needs the
+////                // permission. Display the explanation *asynchronously* -- don't block
+////                // this thread waiting for the user's response!
+////            }
         } else {
             startMonitoring(uid)
         }
@@ -65,9 +67,11 @@ class StoreList : AppCompatActivity(),
 
     private val geofencePendingIntent: PendingIntent by lazy {
         val intent = Intent(this, GeofenceBroadcastReceiver::class.java)
-        // We use FLAG_UPDATE_CURRENT so that we get the same pending intent back when calling
-        // addGeofences() and removeGeofences().
-        PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        PendingIntent.getBroadcast(
+            this,
+            0,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT)
     }
 
     override fun storeSelected(item: Store, selected: Boolean) {
@@ -87,7 +91,7 @@ class StoreList : AppCompatActivity(),
                 } else {
                     storesRecyclerView.adapter =
                         StoreListRecyclerViewAdapter(list, self, sharedPref)
-
+                    setupGeofences(list)
                 }
                 Log.d(MainActivity.TAG, "Value is: $list")
             }
@@ -105,7 +109,7 @@ class StoreList : AppCompatActivity(),
             Geofence.Builder()
                 // Set the request ID of the geofence. This is a string to identify this
                 // geofence.
-                .setRequestId("$STORE_REFERENCE/$uid/${it.id}")
+                .setRequestId("$STORE_REFERENCE/$uid/${it.id}/name")
 
                 // Set the circular region of this geofence.
                 .setCircularRegion(
@@ -126,11 +130,19 @@ class StoreList : AppCompatActivity(),
                 .build()
         }.mapNotNull { it }
         val request = GeofencingRequest.Builder().apply {
-            setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
+            setInitialTrigger(0)
             addGeofences(geofences)
         }.build()
+        Log.d("Geofence", request.toString())
         geofencingClient.removeGeofences(geofencePendingIntent)
         geofencingClient.addGeofences(request,geofencePendingIntent)
+            .addOnSuccessListener {
+               Log.d("Geofence", "success")
+            }
+            // 4
+            .addOnFailureListener {
+                Log.d("Geofence", "error")
+            }
     }
 
 
@@ -138,7 +150,7 @@ class StoreList : AppCompatActivity(),
     Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        if (requestCode == 1234) {
+        if (requestCode == REQUEST_LOCATION) {
             startMonitoring(uid)
         }
     }
