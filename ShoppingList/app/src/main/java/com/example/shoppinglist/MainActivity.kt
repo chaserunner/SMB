@@ -5,20 +5,18 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Color
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
-import android.view.Menu
-import android.view.MenuItem
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-
-import kotlinx.android.synthetic.main.activity_main.*
-import com.example.shoppinglist.ItemsListRecyclerViewAdapter as ItemsListRecyclerViewAdapter
 import android.preference.PreferenceManager
 import android.util.Log
-import com.google.firebase.database.*
+import android.view.Menu
+import android.view.MenuItem
+import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.IdpResponse
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.*
+import kotlinx.android.synthetic.main.activity_main.*
 
 
 class MainActivity : AppCompatActivity(),
@@ -47,11 +45,8 @@ class MainActivity : AppCompatActivity(),
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
-
-
         itemsRecyclerView = findViewById(R.id.items_recyclerview)
         itemsRecyclerView.layoutManager = LinearLayoutManager(this)
-        val self = this
         val auth = FirebaseAuth.getInstance()
         val user = auth.currentUser
         if (user != null) {
@@ -121,15 +116,22 @@ class MainActivity : AppCompatActivity(),
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
+
         if (item.itemId == R.id.action_settings) {
             openSettings()
         } else if  (item.itemId == R.id.action_logout) {
            logout()
+        } else if (item.itemId == R.id.action_store_map) {
+            openStoreMap()
+        } else if (item.itemId == R.id.action_storelist) {
+            openStoreList()
         }
 
         return when (item.itemId) {
             R.id.action_settings -> true
             R.id.action_logout -> true
+            R.id.action_store_map -> true
+            R.id.action_storelist -> true
             else -> super.onOptionsItemSelected(item)
         }
     }
@@ -137,6 +139,16 @@ class MainActivity : AppCompatActivity(),
     fun openSettings(){
         val settingsIntent = Intent(this, SettingsActivity::class.java)
         startActivity(settingsIntent)
+    }
+
+    fun openStoreList() {
+        val storeList = Intent(this, StoreList::class.java)
+        startActivity(storeList)
+    }
+
+    fun openStoreMap() {
+        val storeMap = Intent(this, StoreMap::class.java)
+        startActivity(storeMap)
     }
 
     fun logout() {

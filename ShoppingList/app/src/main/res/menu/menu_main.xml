@@ -8,6 +8,16 @@
         android:title="@string/action_settings"
         app:showAsAction="never" />
     <item
+        android:id="@+id/action_store_map"
+        android:orderInCategory="100"
+        android:title="Store Map"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_storelist"
+        android:orderInCategory="100"
+        android:title="Store List"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/action_logout"
         android:orderInCategory="100"
         android:title="Logout"

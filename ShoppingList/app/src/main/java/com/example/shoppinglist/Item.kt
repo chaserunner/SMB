@@ -36,5 +36,4 @@ data class Item constructor(var name: String = "",
             return arrayOfNulls(size)
         }
     }
-
 }
